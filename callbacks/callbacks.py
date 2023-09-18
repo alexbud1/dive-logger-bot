@@ -34,9 +34,11 @@ async def handle_language_choice(callback: types.CallbackQuery):
 
         await callback.message.edit_text(get_phrase(new_language, "language_changed"))
         await callback.answer()
+        
         welcome_message_keyboard = create_welcome_message_keyboard(new_language)
         await callback.message.answer(get_phrase(new_language, "welcome_message"), reply_markup=welcome_message_keyboard.as_markup())
 
+# handle callback from filling profile and starting filling profile state
 @router.callback_query(F.data.startswith('fill_profile'))
 async def handle_fill_profile(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "fill_profile_message"))
