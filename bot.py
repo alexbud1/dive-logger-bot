@@ -6,7 +6,7 @@ from os.path import dirname, join
 
 from aiogram import Bot, Dispatcher, F, Router, types
 from dotenv import load_dotenv
-from handlers import commands
+from handlers import commands, fill_profile
 from callbacks import callbacks
 
 # .env adjustments
@@ -20,7 +20,7 @@ async def main():
 
     dp = Dispatcher()
     # Include routers from handlers/ they will be entered as A -> B -> C
-    dp.include_routers(commands.router, callbacks.router)
+    dp.include_routers(commands.router, callbacks.router, fill_profile.router)
 
     logging.basicConfig(level=logging.INFO)
 

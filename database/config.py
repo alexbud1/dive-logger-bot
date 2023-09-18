@@ -2,15 +2,14 @@ import asyncio
 import os
 import ssl
 import sys
+from os.path import dirname, join
+from dotenv import load_dotenv
 
 import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# Add the parent directory to the path so we can import the .env file
-sys.path.append("..")
-from bot import dotenv_path, load_dotenv
-
-# Import the environment variables from the .env file
+# .env adjustments
+dotenv_path = join(dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
 
@@ -61,12 +60,3 @@ class UserSettings:
 
 
 user_settings = UserSettings(os.environ.get("CONNECTION_URI"))
-
-# async def main():
-#     user_settings = UserSettings(os.environ.get("CONNECTION_URI"))
-#     found = await user_settings.create_user_settings(232342343290, "lang_eng")
-#     print(found)
-
-# if __name__ == "__main__":
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(main())

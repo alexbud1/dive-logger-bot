@@ -1,7 +1,11 @@
 {
     "language_changed": "The language was changed to 🇺🇸 English!",
-    "menu": "Main Menu",
-    "welcome_message": "Welcome to our bot!",
-    "goodbye_message": "Goodbye!"
-  }
+    "unexpected_error" : "Excuse me! Something went wrong. Please try again later.",
+    "welcome_message": "<b>Welcome to the Dive Logger!</b>\n\nI will be your buddy on 🏝 shore!\n\nI'm here to assist you with all things scuba diving, freediving, and equipment management. Whether you're a diving enthusiast, a beginner, or just curious, I've got you covered.\n\nHere are some things you can do with me:\n🌊 Log your dive experiences and keep track of your underwater adventures.\n📷 Share dive photos and memories with the community.\n🤖 Get equipment recommendations and maintenance tips.\n🗺️ Find exciting dive sites and plan your next underwater journey.",
+    "language_already_chosen" : "The language was already set to 🇺🇸 English!",
+    "fill_profile" : "🤿 Fill profile",
+    "skip_filling_profile" : "🔄 Skip",
+    "fill_profile_message" : "💫 Great choice!\n\nLet's fill your profile first.\nThis will allow you to log your dives and get a chance to engage with other divers in the community.\n\n<b>How do you want other divers to call you?</b>",
+    "is_diver" : "Thanks, {name}!\n\n<b>Are you already a diver?</b>"
+}
   
