@@ -4,8 +4,19 @@
     "welcome_message": "<b>Welcome to the Dive Logger!</b>\n\nI will be your buddy on 🏝 shore!\n\nI'm here to assist you with all things scuba diving, freediving, and equipment management. Whether you're a diving enthusiast, a beginner, or just curious, I've got you covered.\n\nHere are some things you can do with me:\n🌊 Log your dive experiences and keep track of your underwater adventures.\n📷 Share dive photos and memories with the community.\n🤖 Get equipment recommendations and maintenance tips.\n🗺️ Find exciting dive sites and plan your next underwater journey.",
     "language_already_chosen" : "The language was already set to 🇺🇸 English!",
     "fill_profile" : "🤿 Fill profile",
-    "skip_filling_profile" : "🔄 Skip",
+    "skip_button" : "🔄 Skip",
     "fill_profile_message" : "💫 Great choice!\n\nLet's fill your profile first.\nThis will allow you to log your dives and get a chance to engage with other divers in the community.\n\n<b>How do you want other divers to call you?</b>",
-    "is_diver" : "Thanks, {name}!\n\n<b>Are you already a diver?</b>"
+    "is_diver" : "Thanks, {name}!\n\n<b>Are you already a diver?</b>",
+    "skip_filling_profile_message" : "😔 You have not filled profile, so I can't log your dives. You can fill it later in the <b>Profile</b> section.\n\n🤗 However, you can have access to other cool features as 📚 <b>guides and tips</b> + 🌍 <b>browsing dive sites.</b>",
+    "amount_of_dives" : "🤿📉 How many dives have you done (enter number)?",
+    "profile_photo" : "📷 If you want, upload your profile photo.\nOther divers would be able to 👀 see it.",
+    "signup_completed" : "🎉 <b>Congratulations!</b>\n\nYou have successfully signed up! Feel free to try my features.",
+    "not_photo" : "🙅‍♂️ <b>This is not a photo!</b> Please, send me a photo.",
+    "photo_only_one" : "🙅‍♂️ <b>You can send only one photo!</b> Please, send me one photo.",
+    "photo_too_big" : "🙅‍♂️ <b>This photo is too big!</b> Please, send me a photo with size less than 4 MB.",
+    "not_digit" : "🙅‍♂️ <b>This is not a number!</b> Please, send me a number.",
+    "country" : "🌍 <b>What country are you from?</b>\nOn a basis of a country, where you live I can send you recommended dive sites.",
+    "not_country" : "🙅‍♂️ <b>This is not a country!</b> Please, send me a country.\n\nYou can also send me your 📍 coordinates, so as I could determine your country automatically.",
+    "send_coordinates_button" : "📍 Send coordinates",
+    "your_country" : "🌍 Your country choice was successfully saved!"
 }
-  
