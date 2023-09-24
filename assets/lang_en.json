@@ -18,5 +18,7 @@
     "country" : "🌍 <b>What country are you from?</b>\nOn a basis of a country, where you live I can send you recommended dive sites.",
     "not_country" : "🙅‍♂️ <b>This is not a country!</b> Please, send me a country.\n\nYou can also send me your 📍 coordinates, so as I could determine your country automatically.",
     "send_coordinates_button" : "📍 Send coordinates",
-    "your_country" : "🌍 Your country choice was successfully saved!"
+    "your_country" : "🌍 Your country choice was successfully saved!",
+    "invalid_name_length" : "🙅‍♂️ <b>Invalid name length!</b>\n\nPlease, send me a name with length between 3 and 100 characters.",
+    "invalid_amount_of_dives" : "🙅‍♂️ <b>Invalid amount of dives!</b>\n\nPlease, send me a number between 0 and 20000."
 }

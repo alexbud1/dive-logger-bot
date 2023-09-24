@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from caching.cache_language import LanguageCache
 from handlers.states import FillProfile
-from utils import get_phrase, is_valid_country_name, get_country_from_coordinates, translate_to_en
+from utils import get_phrase, is_valid_country_name, get_country_from_coordinates, translate_to_en, create_profile_api
 from keyboards.keyboards import (
     is_diver_keyboard,
     create_send_coordinates_keyboard,
@@ -16,11 +16,15 @@ router = Router()
 # handle name entered by user for his profile
 @router.message(FillProfile.name)
 async def process_name(message: Message, state: FSMContext) -> None:
-    await state.update_data(name=message.text)
-    await state.set_state(FillProfile.is_diver)
+    if len(message.text)>=3 and len(message.text)<=100:
+        await state.update_data(name=message.text)
+        await state.set_state(FillProfile.is_diver)
 
-    phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "is_diver").replace("{name}", message.text)
-    await message.answer(phrase, reply_markup=is_diver_keyboard.as_markup())
+        phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "is_diver").replace("{name}", message.text)
+        await message.answer(phrase, reply_markup=is_diver_keyboard.as_markup())
+    else:
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_name_length"))
+        await state.set_state(FillProfile.name)
 
 # handle photo entered by user for his profile
 @router.message(FillProfile.profile_photo)
@@ -50,7 +54,9 @@ async def process_profile_photo(message: Message, state: FSMContext) -> None:
         await state.set_state('free')
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "signup_completed"))
         data = await state.get_data()
+        data["telegram_id"] = message.from_user.id
         await message.answer(str(data))
+        print(create_profile_api(data))
         await state.clear()
         
 # handle amount of dives entered by user for his profile
@@ -61,11 +67,25 @@ async def process_amount_of_dives(message: Message, state: FSMContext) -> None:
     if not message.text or not message.text.isdigit():
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "not_digit"))
         await state.set_state(FillProfile.amount_of_dives)
+    elif int(message.text) < 0 or int(message.text) > 20000:
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_amount_of_dives"))
+        await state.set_state(FillProfile.amount_of_dives)
     else:
         await state.update_data(amount_of_dives=message.text)
         await state.set_state(FillProfile.country)
         send_coordinates_keyboard = create_send_coordinates_keyboard(await LanguageCache.get_user_language(message.from_user.id))
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "country"), reply_markup=send_coordinates_keyboard.as_markup(resize_keyboard=True))
+
+
+# handle skip country 
+@router.message(F.text, FillProfile.country)
+async def process_skip_country(message: Message, state: FSMContext) -> None:
+    if message.text == get_phrase(await LanguageCache.get_user_language(message.from_user.id), "skip_button"):
+        await state.update_data(country=None)
+        await state.set_state(FillProfile.profile_photo)
+        reply_markup = types.ReplyKeyboardRemove()
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "profile_photo"), reply_markup=reply_markup)
+
 
 # handle country entered by user for his profile
 @router.message(FillProfile.country)
@@ -88,3 +108,4 @@ async def process_country(message: Message, state: FSMContext) -> None:
     else:
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "not_country"))
         await state.set_state(FillProfile.country)
+

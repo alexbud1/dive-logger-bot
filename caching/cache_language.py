@@ -6,7 +6,7 @@ class LanguageCache(MyCache):
 
     # Function to get user language preference from cache or database
     @classmethod
-    async def get_user_language(cls, user_id):
+    async def get_user_language(cls, user_id: int) -> str:
         # Trying to get the data from the cache
         language = cls.cache.get(user_id)
 
@@ -22,7 +22,7 @@ class LanguageCache(MyCache):
 
     # Function to set user language preference
     @classmethod
-    async def set_user_language(cls, user_id, language_preference):
+    async def set_user_language(cls, user_id: int, language_preference: str) -> None:
         # Store the user's language preference in the cache and database
         cls.cache[user_id] = language_preference
         try:

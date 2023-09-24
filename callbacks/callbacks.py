@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from caching.cache_language import LanguageCache
-from utils import get_phrase
+from utils import get_phrase, create_profile_api
 from keyboards.keyboards import (
     create_welcome_message_keyboard,
     create_skip_profile_photo_keyboard,
@@ -15,7 +15,7 @@ router = Router()
 
 # handle callback from language choice
 @router.callback_query(F.data.startswith('lang_'))
-async def handle_language_choice(callback: types.CallbackQuery):
+async def handle_language_choice(callback: types.CallbackQuery) -> None:
 
     old_language = await LanguageCache.get_user_language(callback.from_user.id)
     new_language = callback.data
@@ -41,21 +41,21 @@ async def handle_language_choice(callback: types.CallbackQuery):
 
 # handle callback from filling profile and starting filling profile state
 @router.callback_query(F.data.startswith('fill_profile'))
-async def handle_fill_profile(callback: types.CallbackQuery, state: FSMContext):
+async def handle_fill_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "fill_profile_message"))
     await callback.answer()
     await state.set_state(FillProfile.name)
 
 # handle callback from skipping filling profile
 @router.callback_query(F.data.startswith('skip_filling_profile'))
-async def handle_skip_filling_profile(callback: types.CallbackQuery, state: FSMContext):
+async def handle_skip_filling_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "skip_filling_profile_message"))
     await callback.answer()
     await state.set_state('free')
 
 # handle callback from is_diver question
 @router.callback_query(F.data.startswith('is_diver_'))
-async def handle_is_diver(callback: types.CallbackQuery, state: FSMContext):
+async def handle_is_diver(callback: types.CallbackQuery, state: FSMContext) -> None:
     is_diver = True if callback.data == 'is_diver_yes' else False
     await state.update_data(is_diver=is_diver)
 
@@ -74,10 +74,13 @@ async def handle_is_diver(callback: types.CallbackQuery, state: FSMContext):
 
 # handle callback from skipping profile photo
 @router.callback_query(F.data.startswith('skip_profile_photo'))
-async def handle_skip_profile_photo(callback: types.CallbackQuery, state: FSMContext):
+async def handle_skip_profile_photo(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.set_state('free')
     await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "signup_completed"))
     await callback.answer()
     data = await state.get_data()
+    data["telegram_id"] = callback.from_user.id
     await callback.message.answer(str(data))
+    print(create_profile_api(data))
+
     await state.clear()

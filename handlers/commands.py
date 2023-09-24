@@ -7,5 +7,5 @@ router = Router()
 
 
 @router.message(Command("start"))
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message) -> None:
     await message.answer("Hello! Please choose your prefered language:", reply_markup=language_keyboard.as_markup())
