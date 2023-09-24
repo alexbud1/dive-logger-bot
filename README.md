@@ -18,7 +18,7 @@ This is a bot in Telegram social network. Developed for educational and personal
 ## Features
 
 - Multilingual Support(Done) 
-- Creating your diver profile(In progress)
+- Creating your diver profile(Done)
 - Logging your dives with media
 - Adding your equipment
 - Receiving notifications for servicing equipment
