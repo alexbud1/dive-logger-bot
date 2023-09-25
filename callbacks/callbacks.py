@@ -8,6 +8,7 @@ from utils import get_phrase, create_profile_api
 from keyboards.keyboards import (
     create_welcome_message_keyboard,
     create_skip_profile_photo_keyboard,
+    create_main_menu_keyboard
 )
 from handlers.states import FillProfile
 router = Router()
@@ -52,6 +53,7 @@ async def handle_skip_filling_profile(callback: types.CallbackQuery, state: FSMC
     await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "skip_filling_profile_message"))
     await callback.answer()
     await state.set_state('free')
+    await welcome_to_main_menu(callback)
 
 # handle callback from is_diver question
 @router.callback_query(F.data.startswith('is_diver_'))
@@ -75,12 +77,33 @@ async def handle_is_diver(callback: types.CallbackQuery, state: FSMContext) -> N
 # handle callback from skipping profile photo
 @router.callback_query(F.data.startswith('skip_profile_photo'))
 async def handle_skip_profile_photo(callback: types.CallbackQuery, state: FSMContext) -> None:
-    await state.set_state('free')
-    await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "signup_completed"))
-    await callback.answer()
     data = await state.get_data()
     data["telegram_id"] = callback.from_user.id
     await callback.message.answer(str(data))
-    print(create_profile_api(data))
+    
+    if await create_profile_api(data, callback=callback):
+            
+        await callback.message.edit_text(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "signup_completed"))
+        
+        await state.set_state('free')
+        await state.clear()
 
-    await state.clear()
+        await callback.answer()
+        await welcome_to_main_menu(callback)
+
+async def welcome_to_main_menu(callback: types.CallbackQuery) -> None:
+    main_menu_keyboard = await create_main_menu_keyboard(await LanguageCache.get_user_language(callback.from_user.id), callback=callback)
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "main_menu"), reply_markup=main_menu_keyboard.as_markup())
+
+# handle callback from editing profile
+@router.callback_query(F.data.startswith('edit_profile'))
+async def handle_edit_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
+    await callback.message.answer("Section is not ready yet")
+    await callback.answer()
+
+# handle callback from back from my profile
+@router.callback_query(F.data.startswith('back_my_profile'))
+async def handle_back_my_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
+    await callback.message.delete()
+    await welcome_to_main_menu(callback)
+    await callback.answer()

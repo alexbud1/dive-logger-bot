@@ -2,6 +2,9 @@ import json
 import geopy
 from geopy.geocoders import Nominatim
 from deep_translator import GoogleTranslator
+from caching.cache_language import LanguageCache
+from aiogram import types
+from aiogram.types import Message
 import certifi
 import ssl
 from assets.countries import countries_en, countries_uk
@@ -54,27 +57,33 @@ def translate_to_en(phrase: str) -> str:
     translation = GoogleTranslator(source='auto', target='en').translate(phrase)
     return translation
 
-def create_profile_api(user_profile_data: dict) -> dict | None | requests.exceptions.RequestException:
-    # Define the URL of your endpoint
+async def send_error_message(message: Message, phrase: str) -> None:
+    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), phrase))
+
+async def send_error_callback(callback: types.CallbackQuery, phrase: str) -> None:
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), phrase))
+
+async def create_profile_api(user_profile_data: dict, message: Message = None, callback: types.CallbackQuery = None) -> dict | None | requests.exceptions.RequestException:
+    # URL of my endpoint
     url = "http://127.0.0.1:8000/user_profile/"
 
     # Define the headers with the token
     headers = {
-        "token": os.getenv("DIVE_LOGGER_API_TOKEN"),
-        "Content-Type": "application/json",  # Set the content type as JSON
+        "token": os.getenv("DIVE_LOGGER_API_TOKEN"), # access token, which I give manually for apps.
+        "Content-Type": "application/json",
     }
 
+    # remove all None values from the dictionary
+    user_profile_data = {key : value for key, value in user_profile_data.items() if value is not None}
+    
     try:
-        # Send a POST request to the endpoint with the headers and JSON data
         response = requests.post(url, headers=headers, json=user_profile_data)
 
         # Check the response status code
         if response.status_code == 201:
-            # Request was successful, you can parse the JSON response
             data = response.json()
             return data
         else:
-            # Request failed, handle the error as needed
             print(f"Request failed with status code: {response.status_code}")
             print(response.text)
             return None
@@ -82,4 +91,53 @@ def create_profile_api(user_profile_data: dict) -> dict | None | requests.except
     except requests.exceptions.RequestException as e:
         # Handle exceptions like connection errors, timeouts, etc.
         print(f"Request error: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
+        return None
+    
+    except Exception as e:
+        # Handle any other exceptions
+        print(f"Error: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
+        return None
+    
+
+
+async def get_profile_api(telegram_id: int, message: Message = None, callback: types.CallbackQuery = None) -> dict | None | str:
+    # Define the API endpoint URL
+    url = f"http://127.0.0.1:8000/user_profile/{telegram_id}"
+
+    # Define the headers with the token
+    headers = {
+        "token": os.getenv("DIVE_LOGGER_API_TOKEN"), # access token, which I give manually for apps.
+        "Content-Type": "application/json",
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            user_profile_data = response.json()
+            return user_profile_data
+        elif response.status_code == 404:
+            print(f"User profile with telegram_id {telegram_id} not found")
+            return "not_found"
+        else:
+            # Handle errors, raise an exception, or return None as needed
+            print(f"Error: {response.status_code} - {response.text}")
+
+            return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
         return None
