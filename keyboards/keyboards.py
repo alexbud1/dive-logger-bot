@@ -10,9 +10,14 @@ from utils import get_phrase, get_profile_api
 language_keyboard = InlineKeyboardBuilder()
 language_keyboard.add(
     InlineKeyboardButton(text="English 🇺🇸", callback_data='lang_en'),
-    InlineKeyboardButton(text="Українська 🇺🇦", callback_data='lang_ukr')
+    InlineKeyboardButton(text="🇺🇦 Українська", callback_data='lang_ukr')
 )
 
+settings_language_keyboard = InlineKeyboardBuilder()
+settings_language_keyboard.add(
+    InlineKeyboardButton(text="English 🇺🇸", callback_data='lang_en_settings'),
+    InlineKeyboardButton(text="🇺🇦 Українська", callback_data='lang_ukr_settings')
+)
 
 def create_welcome_message_keyboard(language: str) -> InlineKeyboardBuilder:
     welcome_message_keyboard = InlineKeyboardBuilder()
@@ -68,8 +73,70 @@ async def create_main_menu_keyboard(language: str, message: Message = None, call
 
 def create_my_profile_keyboard(language: str) -> InlineKeyboardBuilder:
     my_profile_keyboard = InlineKeyboardBuilder()
-    my_profile_keyboard.add(
+    my_profile_keyboard.row(
         InlineKeyboardButton(text=get_phrase(language, "edit_profile"), callback_data='edit_profile'),
-        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_my_profile')
+    )
+    my_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
     )
     return my_profile_keyboard
+
+def create_fill_profile_main_manu_keyboard(language: str) -> InlineKeyboardBuilder:
+    fill_profile_main_manu_keyboard = InlineKeyboardBuilder()
+    fill_profile_main_manu_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "fill_profile"), callback_data='fill_profile'),
+    )
+    fill_profile_main_manu_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return fill_profile_main_manu_keyboard
+
+def create_settings_keyboard(language: str) -> InlineKeyboardBuilder:
+    settings_keyboard = InlineKeyboardBuilder()
+    settings_keyboard.add(
+        InlineKeyboardButton(text=get_phrase(language, "language"), callback_data='language'),
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return settings_keyboard
+
+def create_edit_profile_keyboard(language: str) -> InlineKeyboardBuilder:
+    edit_profile_keyboard = InlineKeyboardBuilder()
+    edit_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "name_button"), callback_data='edit_name'),
+        InlineKeyboardButton(text=get_phrase(language, "diver_button"), callback_data='edit_is_diver')
+    )
+    edit_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "amount_of_dives_button"), callback_data='edit_amount_of_dives'),
+        InlineKeyboardButton(text=get_phrase(language, "country_button"), callback_data='edit_country')
+    )
+    edit_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "profile_photo_button"), callback_data='edit_photo_profile'),
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return edit_profile_keyboard
+
+def create_back_to_edit_profile_keyboard(language: str) -> InlineKeyboardBuilder:
+    back_to_edit_profile_keyboard = InlineKeyboardBuilder()
+    back_to_edit_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_edit_profile')
+    )
+    return back_to_edit_profile_keyboard
+
+def create_is_diver_edit_profile_keyboard(language: str) -> InlineKeyboardBuilder:
+    is_diver_edit_profile_keyboard = InlineKeyboardBuilder()
+    is_diver_edit_profile_keyboard.row(
+        InlineKeyboardButton(text='✅', callback_data='edit_is_diver_yes'),
+        InlineKeyboardButton(text='❌', callback_data='edit_is_diver_no')
+    )
+    is_diver_edit_profile_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_edit_profile')
+    )
+    return is_diver_edit_profile_keyboard
+
+def create_edit_country_keyboard(language: str) -> ReplyKeyboardBuilder:
+    edit_country_keyboard = ReplyKeyboardBuilder()
+    edit_country_keyboard.row(
+        types.KeyboardButton(text=get_phrase(language, "send_coordinates_button"), request_location=True),
+        types.KeyboardButton(text=get_phrase(language, "back"))
+    )
+    return edit_country_keyboard

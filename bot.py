@@ -5,9 +5,9 @@ import sys
 from os.path import dirname, join
 
 from aiogram import Bot, Dispatcher, F, Router, types
-from callbacks import callbacks
+from callbacks import callbacks, edit_profile
 from dotenv import load_dotenv
-from handlers import commands, fill_profile, main_keyboard_handler
+from handlers import commands, fill_profile, main_keyboard_handler, edit_profile_handler
 
 # .env adjustments
 dotenv_path = join(dirname(__file__), ".env")
@@ -25,6 +25,8 @@ async def main() -> None:
         callbacks.router,
         fill_profile.router,
         main_keyboard_handler.router,
+        edit_profile.router,
+        edit_profile_handler.router,
     )
 
     logging.basicConfig(level=logging.INFO)

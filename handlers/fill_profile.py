@@ -102,10 +102,9 @@ async def process_skip_country(message: Message, state: FSMContext) -> None:
 # handle country entered by user for his profile
 @router.message(FillProfile.country)
 async def process_country(message: Message, state: FSMContext) -> None:
-    print(message.location)
     skip_profile_photo_keyboard = create_skip_profile_photo_keyboard(await LanguageCache.get_user_language(message.from_user.id))
     if not message.location and is_valid_country_name(message.text):
-        await state.update_data(country=translate_to_en(message.text))
+        await state.update_data(country=message.text)
         await state.set_state(FillProfile.profile_photo)
         reply_markup = types.ReplyKeyboardRemove()
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "your_country"), reply_markup=reply_markup)
@@ -123,5 +122,5 @@ async def process_country(message: Message, state: FSMContext) -> None:
 
 async def welcome_to_main_menu(message: Message) -> None:
     main_menu_keyboard = await create_main_menu_keyboard(await LanguageCache.get_user_language(message.from_user.id), message)
-    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "main_menu"), reply_markup=main_menu_keyboard.as_markup(resize_keyboard=True))
+    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "main_menu"), reply_markup=main_menu_keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True))
 

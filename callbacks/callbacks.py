@@ -8,21 +8,26 @@ from utils import get_phrase, create_profile_api
 from keyboards.keyboards import (
     create_welcome_message_keyboard,
     create_skip_profile_photo_keyboard,
-    create_main_menu_keyboard
+    create_main_menu_keyboard,
+    language_keyboard,
+    create_edit_profile_keyboard
 )
-from handlers.states import FillProfile
+from handlers.states import FillProfile, Settings
 router = Router()
 
 
 # handle callback from language choice
 @router.callback_query(F.data.startswith('lang_'))
-async def handle_language_choice(callback: types.CallbackQuery) -> None:
+async def handle_language_choice(callback: types.CallbackQuery, state: FSMContext) -> None:
 
     old_language = await LanguageCache.get_user_language(callback.from_user.id)
     new_language = callback.data
 
+    # send alert if user already has chosen this language
     if old_language == new_language:
         await callback.answer(get_phrase(new_language, "language_already_chosen"), show_alert=True)
+    
+    # change language and save choice to db and cache
     else:
         try:
             await LanguageCache.set_user_language(callback.from_user.id, new_language)
@@ -33,12 +38,26 @@ async def handle_language_choice(callback: types.CallbackQuery) -> None:
             else:
                 await callback.message.edit_text(get_phrase("lang_en", "unexpected_error"))
                 raise e
+            
 
-        await callback.message.edit_text(get_phrase(new_language, "language_changed"))
+        await callback.message.delete()
+
+        
+        # change keyboard if user came from settings
+        if await state.get_state() == Settings.language:
+            main_menu_keyboard = await create_main_menu_keyboard(new_language, callback=callback)
+            await callback.message.answer(get_phrase(new_language, "language_changed"), reply_markup=main_menu_keyboard.as_markup(one_time_keyboard=True))
+        
+        # main menu keyboard is not needed in this case(user just changed language in the beginning)
+        else:
+            await callback.message.answer(get_phrase(new_language, "language_changed"))
+
         await callback.answer()
-
-        welcome_message_keyboard = create_welcome_message_keyboard(new_language)
-        await callback.message.answer(get_phrase(new_language, "welcome_message"), reply_markup=welcome_message_keyboard.as_markup())
+        
+        # send welcome message if user just changed language in the beginning
+        if await state.get_state() != Settings.language:
+            welcome_message_keyboard = create_welcome_message_keyboard(new_language)
+            await callback.message.answer(get_phrase(new_language, "welcome_message"), reply_markup=welcome_message_keyboard.as_markup())
 
 # handle callback from filling profile and starting filling profile state
 @router.callback_query(F.data.startswith('fill_profile'))
@@ -93,17 +112,25 @@ async def handle_skip_profile_photo(callback: types.CallbackQuery, state: FSMCon
 
 async def welcome_to_main_menu(callback: types.CallbackQuery) -> None:
     main_menu_keyboard = await create_main_menu_keyboard(await LanguageCache.get_user_language(callback.from_user.id), callback=callback)
-    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "main_menu"), reply_markup=main_menu_keyboard.as_markup())
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "main_menu"), reply_markup=main_menu_keyboard.as_markup(one_time_keyboard=True))
 
 # handle callback from editing profile
 @router.callback_query(F.data.startswith('edit_profile'))
 async def handle_edit_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
-    await callback.message.answer("Section is not ready yet")
+    await callback.message.delete()
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "edit_profile_message"), reply_markup=create_edit_profile_keyboard(await LanguageCache.get_user_language(callback.from_user.id)).as_markup())
     await callback.answer()
 
 # handle callback from back from my profile
-@router.callback_query(F.data.startswith('back_my_profile'))
-async def handle_back_my_profile(callback: types.CallbackQuery, state: FSMContext) -> None:
+@router.callback_query(F.data.startswith('back_to_menu'))
+async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext) -> None:
     await callback.message.delete()
     await welcome_to_main_menu(callback)
+    await callback.answer()
+
+# handle callback from settings - language choice
+@router.callback_query(F.data.startswith('language'))
+async def handle_language(callback: types.CallbackQuery, state: FSMContext) -> None:
+    await callback.message.delete()
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "language_choice"), reply_markup=language_keyboard.as_markup())
     await callback.answer()
