@@ -10,9 +10,11 @@ from keyboards.keyboards import (
     create_skip_profile_photo_keyboard,
     create_main_menu_keyboard,
     language_keyboard,
-    create_edit_profile_keyboard
+    create_edit_profile_keyboard,
+    create_back_to_menu_keyboard
 )
-from handlers.states import FillProfile, Settings
+from handlers.states import FillProfile, Settings, Support
+
 router = Router()
 
 
@@ -126,6 +128,7 @@ async def handle_edit_profile(callback: types.CallbackQuery, state: FSMContext) 
 async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext) -> None:
     await callback.message.delete()
     await welcome_to_main_menu(callback)
+    await state.set_state('free')
     await callback.answer()
 
 # handle callback from settings - language choice
@@ -133,4 +136,12 @@ async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext) 
 async def handle_language(callback: types.CallbackQuery, state: FSMContext) -> None:
     await callback.message.delete()
     await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "language_choice"), reply_markup=language_keyboard.as_markup())
+    await callback.answer()
+
+# handle callback from main menu to support
+@router.callback_query(F.data.startswith('start_support'))
+async def handle_support(callback: types.CallbackQuery, state: FSMContext) -> None:
+    await callback.message.delete()
+    await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "support_message"), reply_markup=create_back_to_menu_keyboard(await LanguageCache.get_user_language(callback.from_user.id)).as_markup())
+    await state.set_state(Support.message)
     await callback.answer()

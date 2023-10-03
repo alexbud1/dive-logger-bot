@@ -56,5 +56,9 @@
     "edit_country" : "✏️ <b>Edit country</b>\n\nPlease, send me a new country(type it or send by button) or use the button below to go back to the <b>Edit profile</b> menu.",
     "country_saved" : "🌍 <b>Country saved!</b>",
     "edit_profile_photo" : "✏️ <b>Edit profile photo</b>\n\nPlease, send me a new profile photo or use the button below to go back to the <b>Edit profile</b> menu.",
-    "profile_photo_saved" : "📷 <b>Profile photo saved!</b>"
+    "profile_photo_saved" : "📷 <b>Profile photo saved!</b>",
+    "support" : "📞 <b>Support</b>\n\nHere you can contact administrator and ask any questions using button below.",
+    "support_message" : "📞 <b>Support</b>\n\nPlease, send me your question or use the button below to go back to the <b>Main menu</b>.",
+    "support_message_sent" : "🚢 Your message was successfully sent to the administrator! You will get an answer soon...",
+    "support_answer" : "🔔 <b>Message from administrator</b>\n\n<b>Answer:</b> {answer}"
 }

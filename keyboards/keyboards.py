@@ -140,3 +140,20 @@ def create_edit_country_keyboard(language: str) -> ReplyKeyboardBuilder:
         types.KeyboardButton(text=get_phrase(language, "back"))
     )
     return edit_country_keyboard
+
+def create_support_keyboard(language: str) -> InlineKeyboardBuilder:
+    support_keyboard = InlineKeyboardBuilder()
+    support_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "support_button"), callback_data='start_support')
+    )
+    support_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return support_keyboard
+
+def create_back_to_menu_keyboard(language: str) -> InlineKeyboardBuilder:
+    back_to_menu_keyboard = InlineKeyboardBuilder()
+    back_to_menu_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return back_to_menu_keyboard

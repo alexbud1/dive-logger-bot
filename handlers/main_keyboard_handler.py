@@ -9,7 +9,8 @@ from keyboards.keyboards import (
     create_my_profile_keyboard,
     create_fill_profile_main_manu_keyboard,
     language_keyboard,
-    create_settings_keyboard
+    create_settings_keyboard,
+    create_support_keyboard
 )
 from handlers.states import (
     Settings
@@ -81,4 +82,4 @@ async def handle_settings_button(message: Message, state: FSMContext) -> None:
 # handle Support button from main menu
 @router.message(F.text.startswith("📞"))
 async def handle_support_button(message: Message) -> None:
-    await message.answer("Section is not ready yet")
+    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "support"), reply_markup=create_support_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())

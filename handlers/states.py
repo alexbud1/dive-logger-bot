@@ -18,3 +18,6 @@ class EditProfile(StatesGroup):
     amount_of_dives = State()
     country = State()
     profile_photo = State()
+
+class Support(StatesGroup):
+    message = State()

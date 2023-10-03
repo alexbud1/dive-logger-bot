@@ -5,7 +5,7 @@ import sys
 from os.path import dirname, join
 
 from aiogram import Bot, Dispatcher, F, Router, types
-from callbacks import callbacks, edit_profile
+from callbacks import callbacks, edit_profile, support
 from dotenv import load_dotenv
 from handlers import commands, fill_profile, main_keyboard_handler, edit_profile_handler
 
@@ -27,6 +27,7 @@ async def main() -> None:
         main_keyboard_handler.router,
         edit_profile.router,
         edit_profile_handler.router,
+        support.router,
     )
 
     logging.basicConfig(level=logging.INFO)
