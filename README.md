@@ -35,7 +35,7 @@ This is a bot in Telegram social network. Developed for educational and personal
 - Multilingual Support(Done)
 
 - Creating your diver profile(Done)
-- User support(Done)
+- User support with media(Done)
 
 - Logging your dives with media
 

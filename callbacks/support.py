@@ -30,8 +30,32 @@ async def process_support_message(message: Message, state: FSMContext, bot: Bot)
 # handle text from user in Support state in group
 @router.message(F.text, F.chat.id==GROUP_ID, F.reply_to_message)  
 async def process_support_message(message: Message, state: FSMContext, bot: Bot) -> None:
-    if "ID" in message.reply_to_message.text:
-        id = message.reply_to_message.text.split("\n")[2].split(" ")[2][1:-1] # find id in message.text
+    msg = message.reply_to_message.text if message.reply_to_message.text else message.reply_to_message.caption
+    if "ID" in msg:
+        id = msg.split("\n")[2].split(" ")[2][1:-1] # find id in message.text
         answer_phrase = get_phrase(await LanguageCache.get_user_language(int(id)), "support_answer")
         message_content = answer_phrase.replace("{answer}", message.text)
         await bot.send_message(int(id), message_content)
+
+# handle photos from user in Support state
+@router.message(Support.message, F.photo)
+async def process_support_photo(message: Message, state: FSMContext, bot: Bot) -> None:
+    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "support_message_sent"))  
+    message_content = f"📨 <b>Новe повідомлення у підтримку!</b>\n\nID : [{message.from_user.id}]\nІмʼя : {message.from_user.first_name}\nПрізвище : {message.from_user.last_name}\nЮзернейм : {message.from_user.username}"
+    if message.caption:
+        message_content += f"\n\nТекст повідомлення : {message.caption}"
+    await bot.send_photo(GROUP_ID, message.photo[-1].file_id, caption = message_content)
+
+# handle photos from admin in Support state in group
+@router.message(F.photo, F.chat.id==GROUP_ID, F.reply_to_message)
+async def process_support_photo(message: Message, state: FSMContext, bot: Bot) -> None:
+    msg = message.reply_to_message.text if message.reply_to_message.text else message.reply_to_message.caption
+    if "ID" in msg:
+        id = msg.split("\n")[2].split(" ")[2][1:-1] # find id in message.text
+        if message.caption:
+            answer_phrase = get_phrase(await LanguageCache.get_user_language(int(id)), "support_answer")
+            message_content = answer_phrase.replace("{answer}", message.caption)
+            await bot.send_photo(int(id), message.photo[-1].file_id, caption = message_content)
+        else:
+            answer_phrase = get_phrase(await LanguageCache.get_user_language(int(id)), "support_answer2")
+            await bot.send_photo(int(id), message.photo[-1].file_id, caption = answer_phrase)
