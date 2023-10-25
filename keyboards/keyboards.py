@@ -157,3 +157,31 @@ def create_back_to_menu_keyboard(language: str) -> InlineKeyboardBuilder:
         InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
     )
     return back_to_menu_keyboard
+
+def create_dives_keyboard(language: str) -> InlineKeyboardBuilder:
+    dives_keyboard = InlineKeyboardBuilder()
+    dives_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "add_dive"), callback_data='add_dive'),
+        InlineKeyboardButton(text=get_phrase(language, "dive_logbook"), callback_data='dive_logbook')
+    )
+    dives_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_menu')
+    )
+    return dives_keyboard
+
+def create_back_to_dives_keyboard(language: str) -> InlineKeyboardBuilder:
+    back_to_dives_keyboard = InlineKeyboardBuilder()
+    back_to_dives_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_dives')
+    )
+    return back_to_dives_keyboard
+
+def create_today_keyboard(language: str) -> InlineKeyboardBuilder:
+    today_keyboard = InlineKeyboardBuilder()
+    today_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "today_button"), callback_data='today')
+    )
+    today_keyboard.row(
+        InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_dives')
+    )
+    return today_keyboard

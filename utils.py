@@ -12,6 +12,7 @@ import requests
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
+from datetime import datetime
 
 
 # .env adjustments
@@ -178,6 +179,56 @@ async def update_profile_api(telegram_id: int, key: str, value: any, message: Me
     except requests.exceptions.RequestException as e:
         # Handle exceptions like connection errors, timeouts, etc.
         print(f"Request error: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
+        return None
+    
+def is_valid_date(date_str: str, date_format='%d.%m.%Y') -> bool:
+    try:
+        datetime.strptime(date_str, date_format)
+        return True
+    except ValueError:
+        return False
+    
+async def create_dive_api(dive_data: dict, message: Message = None, callback: types.CallbackQuery = None) -> dict | None | requests.exceptions.RequestException:
+    # URL of my endpoint
+    url = "http://127.0.0.1:8000/dive/"
+
+    # Define the headers with the token
+    headers = {
+        "token": os.getenv("DIVE_LOGGER_API_TOKEN"), # access token, which I give manually for apps.
+        "Content-Type": "application/json",
+    }
+
+    # remove all None values from the dictionary
+    dive_data = {key : value for key, value in dive_data.items() if value is not None}
+    
+    try:
+        response = requests.post(url, headers=headers, json=dive_data)
+
+        # Check the response status code
+        if response.status_code == 201:
+            data = response.json()
+            return data
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            print(response.text)
+            return None
+
+    except requests.exceptions.RequestException as e:
+        # Handle exceptions like connection errors, timeouts, etc.
+        print(f"Request error: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
+        return None
+    
+    except Exception as e:
+        # Handle any other exceptions
+        print(f"Error: {e}")
         if message:
             await send_error_message(message, "server_error")
         elif callback:

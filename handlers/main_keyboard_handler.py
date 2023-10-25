@@ -8,9 +8,9 @@ from utils import get_phrase, get_profile_api
 from keyboards.keyboards import (
     create_my_profile_keyboard,
     create_fill_profile_main_manu_keyboard,
-    language_keyboard,
     create_settings_keyboard,
-    create_support_keyboard
+    create_support_keyboard,
+    create_dives_keyboard
 )
 from handlers.states import (
     Settings
@@ -22,7 +22,7 @@ router = Router()
 # handle Dives button from main menu
 @router.message(F.text.startswith("🐠"))
 async def handle_dives_button(message: Message) -> None:
-    await message.answer("Section is not ready yet")
+    await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dives"), reply_markup=create_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
 
 
 # handle Equipment button from main menu
