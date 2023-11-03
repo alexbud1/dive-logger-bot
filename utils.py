@@ -234,3 +234,37 @@ async def create_dive_api(dive_data: dict, message: Message = None, callback: ty
         elif callback:
             await send_error_callback(callback, "server_error")
         return None
+    
+async def get_dive_api(telegram_id: int, page: int, size: int, message: Message = None, callback: types.CallbackQuery = None) -> dict | None | str:
+    # Define the API endpoint URL
+    url = f"http://127.0.0.1:8000/dive/{telegram_id}?page={page}&size={size}"
+
+    # Define the headers with the token
+    headers = {
+        "token": os.getenv("DIVE_LOGGER_API_TOKEN"), # access token, which I give manually for apps.
+        "Content-Type": "application/json",
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            dives_data = response.json()
+            return dives_data
+        elif response.status_code == 404:
+            print(f"Dive with telegram_id {telegram_id} not found")
+            return "not_found"
+        else:
+            # Handle errors, raise an exception, or return None as needed
+            print(f"Error: {response.status_code} - {response.text}")
+
+            return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        if message:
+            await send_error_message(message, "server_error")
+        elif callback:
+            await send_error_callback(callback, "server_error")
+        return None

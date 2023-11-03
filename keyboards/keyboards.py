@@ -185,3 +185,23 @@ def create_today_keyboard(language: str) -> InlineKeyboardBuilder:
         InlineKeyboardButton(text=get_phrase(language, "back"), callback_data='back_to_dives')
     )
     return today_keyboard
+
+def create_carousel_keyboard(language: str, page: int, pages_count: int) -> InlineKeyboardBuilder:
+    carousel_keyboard = InlineKeyboardBuilder()
+    print(f"page: {page}, pages_count: {pages_count}")
+    # generate carousel keyboard
+    if pages_count == 2 or (page == 1 and pages_count > 2):
+        carousel_keyboard.add(
+            types.InlineKeyboardButton(text=get_phrase(language, "previous"), callback_data="previous_dive")
+        )
+    elif (page == pages_count and pages_count > 2):
+        carousel_keyboard.add(
+            types.InlineKeyboardButton(text=get_phrase(language, "next"), callback_data="next_dive")
+        )
+    elif pages_count > 2:
+        carousel_keyboard.add(
+            types.InlineKeyboardButton(text=get_phrase(language, "previous"), callback_data="previous_dive"),
+            types.InlineKeyboardButton(text=get_phrase(language, "next"), callback_data="next_dive")
+        )
+
+    return carousel_keyboard
