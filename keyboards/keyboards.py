@@ -190,11 +190,11 @@ def create_carousel_keyboard(language: str, page: int, pages_count: int) -> Inli
     carousel_keyboard = InlineKeyboardBuilder()
     print(f"page: {page}, pages_count: {pages_count}")
     # generate carousel keyboard
-    if pages_count == 2 or (page == 1 and pages_count > 2):
+    if page == 1 and pages_count >= 2:
         carousel_keyboard.add(
             types.InlineKeyboardButton(text=get_phrase(language, "previous"), callback_data="previous_dive")
         )
-    elif (page == pages_count and pages_count > 2):
+    elif (page == pages_count and pages_count >= 2):
         carousel_keyboard.add(
             types.InlineKeyboardButton(text=get_phrase(language, "next"), callback_data="next_dive")
         )
@@ -203,5 +203,7 @@ def create_carousel_keyboard(language: str, page: int, pages_count: int) -> Inli
             types.InlineKeyboardButton(text=get_phrase(language, "previous"), callback_data="previous_dive"),
             types.InlineKeyboardButton(text=get_phrase(language, "next"), callback_data="next_dive")
         )
-
+    carousel_keyboard.row(
+        types.InlineKeyboardButton(text=get_phrase(language, "back"), callback_data="back_to_dives")
+    )
     return carousel_keyboard
