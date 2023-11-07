@@ -21,7 +21,7 @@ async def handle_add_dive(callback: types.CallbackQuery, state: FSMContext) -> N
     await callback.message.delete()
     await callback.message.answer(get_phrase(await LanguageCache.get_user_language(callback.from_user.id), "add_dive_message"), reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(callback.from_user.id)).as_markup())
     await callback.answer()
-    await state.set_state(AddDive.max_depth)
+    await state.set_state(AddDive.dive_number)
 
 # hadnle back button from add dive message menu
 @router.callback_query(F.data.startswith('back_to_dives'))

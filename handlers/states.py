@@ -22,21 +22,26 @@ class Support(StatesGroup):
     message = State()
 
 class AddDive(StatesGroup):
-    max_depth = State()
-    duration = State()
-    water_temperature = State()
+    dive_number = State()
     date = State()
     location = State()
-    visibility = State()
-    dive_type = State()
     dive_center = State()
-    dive_buddy = State()
-    description = State()
+   
+    max_depth = State()
+    duration = State()
+    gas = State()
+    dive_type = State()
+    water_temperature = State()
+    air_temperature = State()
+    air_pressure = State()
+    visibility = State()
+    current = State()
+
     wetsuit_type = State()
     wetsuit_thickness = State()
     weight = State()
-    air_temperature = State()
-    air_pressure = State()
-    current = State()
-    dive_number = State()
+    
+    dive_buddy = State()
+    description = State()
+
 

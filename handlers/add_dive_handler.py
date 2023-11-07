@@ -47,9 +47,9 @@ async def process_duration(message: Message, state: FSMContext) -> None:
         duration = float(message.text if '.' in message.text else message.text.replace(',', '.')) # replace comma with dot if its comma
         if duration>=0 and duration<=6000:
             await state.update_data(duration=message.text)
-            await state.set_state(AddDive.water_temperature)
+            await state.set_state(AddDive.gas)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "water_temperature")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "gas")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_duration"))
@@ -67,10 +67,10 @@ async def process_water_temperature(message: Message, state: FSMContext) -> None
         water_temperature = float(message.text if '.' in message.text else message.text.replace(',', '.'))  # replace comma with dot if its comma
         if water_temperature>=-40 and water_temperature<=40:
             await state.update_data(water_temperature=message.text)
-            await state.set_state(AddDive.date)
+            await state.set_state(AddDive.air_temperature)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "date")
-            await message.answer(phrase, reply_markup=create_today_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "air_temperature")
+            await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_water_temperature"))
             await state.set_state(AddDive.water_temperature)
@@ -97,9 +97,9 @@ async def process_date(message: Message, state: FSMContext) -> None:
 async def process_location(message: Message, state: FSMContext) -> None:
     if len(message.text) <= 150:
         await state.update_data(location=message.text)
-        await state.set_state(AddDive.visibility)
+        await state.set_state(AddDive.dive_center)
 
-        phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "visibility")
+        phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_center")
         await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
     else:
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_location"))
@@ -111,9 +111,9 @@ async def process_visibility(message: Message, state: FSMContext) -> None:
     if re.match(r'^[\p{L} -]+$', message.text, re.UNICODE):
         if len(message.text) <= 50:
             await state.update_data(visibility=message.text)
-            await state.set_state(AddDive.dive_type)
+            await state.set_state(AddDive.current)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_type")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "current")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_visibility"))
@@ -128,9 +128,9 @@ async def process_dive_type(message: Message, state: FSMContext) -> None:
     if re.match(r'^[\p{L} -]+$', message.text, re.UNICODE):
         if len(message.text) <= 50:
             await state.update_data(dive_type=message.text)
-            await state.set_state(AddDive.dive_center)
+            await state.set_state(AddDive.water_temperature)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_center")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "water_temperature")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_dive_type"))
@@ -145,10 +145,11 @@ async def process_dive_center(message: Message, state: FSMContext) -> None:
     if re.match(r'^[\p{L} -]+$', message.text, re.UNICODE):
         if len(message.text) <= 150:
             await state.update_data(dive_center=message.text)
-            await state.set_state(AddDive.dive_buddy)
+            await state.set_state(AddDive.max_depth)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_buddy")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "max_depth")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
+            
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_dive_center"))
             await state.set_state(AddDive.dive_center)
@@ -178,10 +179,17 @@ async def process_dive_buddy(message: Message, state: FSMContext) -> None:
 async def process_description(message: Message, state: FSMContext) -> None:
     if len(message.text) <= 800:
         await state.update_data(description=message.text)
-        await state.set_state(AddDive.wetsuit_type)
 
-        phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "wetsuit_type")
-        await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
+        info = await state.get_data()
+        info["telegram_id"] = message.from_user.id
+
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_saved"))   
+
+        if await create_dive_api(info, message=message):
+            await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dives"), reply_markup=create_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
+            await state.set_state('free')
+            await state.clear() 
+
     else:
         await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_description"))
         await state.set_state(AddDive.description)
@@ -220,9 +228,9 @@ async def process_weight(message: Message, state: FSMContext) -> None:
 
         if weight>=0 and weight<=50:
             await state.update_data(weight=message.text)
-            await state.set_state(AddDive.air_temperature)
+            await state.set_state(AddDive.dive_buddy)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "air_temperature")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_buddy")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_weight"))
@@ -258,9 +266,9 @@ async def process_air_pressure(message: Message, state: FSMContext) -> None:
 
         if air_pressure>=0 and air_pressure<=2000:
             await state.update_data(air_pressure=message.text)
-            await state.set_state(AddDive.current)
+            await state.set_state(AddDive.visibility)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "current")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "visibility")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_air_pressure"))
@@ -275,9 +283,9 @@ async def process_current(message: Message, state: FSMContext) -> None:
     if re.match(r'^[\p{L} -]+$', message.text, re.UNICODE):
         if len(message.text) <= 50:
             await state.update_data(current=message.text)
-            await state.set_state(AddDive.dive_number)
+            await state.set_state(AddDive.wetsuit_type)
 
-            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_number")
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "wetsuit_type")
             await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_current"))
@@ -293,20 +301,38 @@ async def process_dive_number(message: Message, state: FSMContext) -> None:
         dive_number = float(message.text if '.' in message.text else message.text.replace(',', '.'))
 
         if dive_number>=1 and dive_number<=20000:
+            # await state.update_data(dive_number=message.text)
+            # info = await state.get_data()
+            # info["telegram_id"] = message.from_user.id
+
+            # await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_saved"))   
+
+            # if await create_dive_api(info, message=message):
+            #     await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dives"), reply_markup=create_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
+            #     await state.set_state('free')
+            #     await state.clear()    
             await state.update_data(dive_number=message.text)
-            info = await state.get_data()
-            info["telegram_id"] = message.from_user.id
+            await state.set_state(AddDive.date)
 
-            await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_saved"))   
-
-            if await create_dive_api(info, message=message):
-                await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dives"), reply_markup=create_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
-                await state.set_state('free')
-                await state.clear()    
+            phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "date")
+            await message.answer(phrase, reply_markup=create_today_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())    
 
         else:
             await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_dive_number"))
             await state.set_state(AddDive.dive_number)
     else:
-        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id, "invalid_dive_number")))
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_dive_number"))
         await state.set_state(AddDive.dive_number)
+
+# handle gas entered by user for his dive
+@router.message(AddDive.gas)
+async def process_gas(message: Message, state: FSMContext) -> None:
+    if len(message.text) <= 150:
+        await state.update_data(gas=message.text)
+        await state.set_state(AddDive.dive_type)
+
+        phrase = get_phrase(await LanguageCache.get_user_language(message.from_user.id), "dive_type")
+        await message.answer(phrase, reply_markup=create_back_to_dives_keyboard(await LanguageCache.get_user_language(message.from_user.id)).as_markup())
+    else:
+        await message.answer(get_phrase(await LanguageCache.get_user_language(message.from_user.id), "invalid_gas"))
+        await state.set_state(AddDive.gas)
